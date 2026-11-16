@@ -9,7 +9,10 @@ permissions:
 
 jobs:
   test-and-build:
-    runs-on: macos-latest
+    strategy:
+      matrix:
+        os: [macos-latest, macos-15-intel]
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
       - name: Check out source
@@ -18,10 +21,12 @@ jobs:
         run: swift test
       - name: Build universal release
         run: ./scripts/release.sh
+      - name: Check packaged executable
+        run: '"dist/Codex Pace.app/Contents/MacOS/CodexPace" --help'
       - name: Upload release archive and checksum
         uses: actions/upload-artifact@v7
         with:
-          name: Codex-Pace-macos-universal
+          name: Codex-Pace-macos-universal-${{ runner.arch }}
           path: |
             dist/Codex-Pace-*-macos-universal.zip
             dist/SHA256SUMS
