@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+      - name: Run tests
+        run: swift test
+      - name: Build universal release
+        run: ./scripts/release.sh
+      - name: Upload release archive and checksum
+        uses: actions/upload-artifact@v7
+        with:
+          name: Codex-Pace-macos-universal
+          path: |
+            dist/Codex-Pace-*-macos-universal.zip
+            dist/SHA256SUMS
+          if-no-files-found: error
